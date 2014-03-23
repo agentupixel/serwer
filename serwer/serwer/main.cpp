@@ -1,60 +1,87 @@
 #include <iostream>
-#include <WinSock2.h>
+#include <winsock2.h>
+#include <ctime>
+#pragma comment(lib,"ws2_32.lib")
 
-#pragma once
-#pragma comment(lib, "Ws2_32.lib")
-
-using namespace std;
-
-u_long resolveHost(const string &host); // funkcja, dziêki której u¿ytkownik ma dowolnoœæ jeœli chodzi o wybór adres, czy nazwa hosta
-
-
-int main(int argc, char* argv[])
+int main()
 {
-	WSADATA wsaData;
-	SOCKADDR_IN saddr;
-	SOCKET sock;
-	const char *helloMessage = "Test serwer, wersja 1.0\n";
+	srand(time(0));
+	int kto = rand() % 2;
 
-	WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	memset((void*)&saddr, 0, sizeof(saddr));
-	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(10000);
-	saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-	if (bind(sock, (sockaddr*)&saddr, sizeof(saddr)) != SOCKET_ERROR)
+	WSADATA WsaDat;
+	if (WSAStartup(MAKEWORD(2, 2), &WsaDat) != 0)
 	{
-		if (listen(sock, 1) != SOCKET_ERROR)
-		{
-			for (int i = 0; i < 5; i++) {
-				SOCKET client = accept(sock, NULL, NULL);
-
-				send(client, helloMessage, strlen(helloMessage), 0);
-				closesocket(client);
-			}
-		}
+		std::cout << "WSA Initialization failed!\r\n";
+		WSACleanup();
+		system("PAUSE");
+		return 0;
 	}
 
-	closesocket(sock);
+	SOCKET Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP), Socket2 = SOCKET_ERROR;
+	if (Socket == INVALID_SOCKET)
+	{
+		std::cout << "Socket creation failed.\r\n";
+		WSACleanup();
+		system("PAUSE");
+		return 0;
+	}
+
+	SOCKADDR_IN serverInf;
+	serverInf.sin_family = AF_INET;
+	serverInf.sin_addr.s_addr = INADDR_ANY;
+	serverInf.sin_port = htons(27015);
+
+	if (bind(Socket, (SOCKADDR*)(&serverInf), sizeof(serverInf)) == SOCKET_ERROR)
+	{
+		std::cout << "Unable to bind socket!\r\n";
+		WSACleanup();
+		system("PAUSE");
+		return 0;
+	}
+
+	listen(Socket, 2);
+
+
+	SOCKET TempSock = SOCKET_ERROR;
+	while (TempSock == SOCKET_ERROR)
+	{
+		std::cout << "Waiting for incoming connections...\r\n";
+		TempSock = accept(Socket, NULL, NULL);
+		//	std::cout << "Client not connected!\r\n\r\n";
+	}
+	//Socket = TempSock;
+	while (Socket2 == SOCKET_ERROR)
+	{
+		std::cout << "Waiting for incoming connections...\r\n";
+		Socket2 = accept(Socket, NULL, NULL);
+		//	std::cout << "Client not connected!\r\n\r\n";
+	}
+	Socket = TempSock;
+
+	std::cout << "Client connected!\r\n\r\n";
+
+	char szMessage[] = "p";
+	char szMessage2[] = "n";
+	if (kto){
+		send(Socket, "t", strlen(szMessage), 0);
+		send(Socket, "n", strlen(szMessage2), 0);
+		send(Socket2, "p", strlen(szMessage), 0);
+		send(Socket2, "n", strlen(szMessage2), 0);
+	}
+	else{
+		send(Socket2, "t", strlen(szMessage), 0);
+		send(Socket2, "n", strlen(szMessage2), 0);
+		send(Socket, "p", strlen(szMessage), 0);
+		send(Socket, "n", strlen(szMessage2), 0);
+	}
+	/*while (true){
+	  pêtla g³ówna
+	}*/
+	shutdown(Socket, SD_SEND);
+	closesocket(Socket);
+	shutdown(Socket2, SD_SEND);
+	closesocket(Socket2);
 	WSACleanup();
-	system("pause");
+	system("PAUSE");
 	return 0;
-}
-
-u_long resolveHost(const string &host){
-	LPHOSTENT hostEntry = gethostbyname(host.c_str());
-
-	if (!hostEntry){
-		unsigned int addr = inet_addr(host.c_str());
-		hostEntry = gethostbyaddr((char *)&addr, 4, AF_INET);
-
-		if (!hostEntry){
-			cout << "the host was not found" << endl;
-			exit(2);
-		}
-	}
-
-	return *((int*)*hostEntry->h_addr_list);
 }

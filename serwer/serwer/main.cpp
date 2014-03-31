@@ -113,7 +113,7 @@ int main()
 		}
 		else 
 			if (kto == 1){
-				std::cout << "kupa" << std::endl;
+				std::cout << "kurde" << std::endl;
 				std::cout << "pierwszy recv 1" << std::endl;
 				recv(Socket2, szMessage, 1, 0);
 				std::cout << "drugi recv 1" << std::endl;

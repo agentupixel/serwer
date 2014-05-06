@@ -38,19 +38,17 @@ Serwer::~Serwer()
 }
 
 void handle(void * u){
-	cout << "utworzony watek" << endl;
+
 	srand(static_cast<unsigned int>(time(0)));
 	int kto = rand() % 2;
 	SOCKET Socket2 = SOCKET_ERROR;
 	SOCKET TempSock = s.temp;
-	while (Socket2 == SOCKET_ERROR){
-		cout << "nie lacze\r";
-		Socket2 = accept(s.socket, NULL, NULL);
-	}
-
 	char szMessage[] = "t";
 	char szMessage2[] = "p";
 
+	while (Socket2 == SOCKET_ERROR)
+		Socket2 = accept(s.socket, NULL, NULL);
+	
 	if (kto == 0){
 		send(TempSock, szMessage, 1, 0);
 		send(Socket2, szMessage2, 1, 0);
@@ -97,11 +95,9 @@ void handle(void * u){
 
 void Serwer::connection(){
 	
-	
 	listen(Socket, 100);
 
 	while (true){
-
 		SOCKET TempSock = SOCKET_ERROR;
 		ZeroMemory(&serverInf, sizeof (struct sockaddr));
 		while (TempSock == SOCKET_ERROR)

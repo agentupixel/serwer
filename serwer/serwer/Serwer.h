@@ -16,11 +16,8 @@ public:
 	~Serwer();
 	void connection();
 	friend void handle(void *);
-	
-	
 
 private:
-	
 	int kto;
 	WSADATA WsaDat;
 	SOCKET Socket;

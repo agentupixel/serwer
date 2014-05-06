@@ -21,5 +21,13 @@
     <ClCompile Include="klient.cpp">
       <Filter>Pliki zasobów</Filter>
     </ClCompile>
+    <ClCompile Include="Serwer.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Serwer.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

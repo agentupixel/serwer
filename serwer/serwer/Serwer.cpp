@@ -1,14 +1,16 @@
-#include "Serwer.h"
+ï»¿#include "Serwer.h"
 
 using namespace std;
 
 struct sockety{
 	SOCKET socket;
 	SOCKET temp;
+	SOCKET temp2;
 }s;
 
 Serwer::Serwer() throw(string)
 {
+	port = 27015;
 	if (WSAStartup(MAKEWORD(2, 2), &WsaDat)){
 		string wyjatek = "WSA Initialization failure";
 		throw wyjatek;
@@ -28,6 +30,7 @@ Serwer::Serwer() throw(string)
 		throw wyjatek;
 	}
 
+
 }
 
 Serwer::~Serwer()
@@ -38,17 +41,14 @@ Serwer::~Serwer()
 }
 
 void handle(void * u){
-
+	cout << "tworze watek!" << endl;
 	srand(static_cast<unsigned int>(time(0)));
 	int kto = rand() % 2;
-	SOCKET Socket2 = SOCKET_ERROR;
+	SOCKET Socket2 = s.temp2;
 	SOCKET TempSock = s.temp;
 	char szMessage[] = "t";
 	char szMessage2[] = "p";
 
-	while (Socket2 == SOCKET_ERROR)
-		Socket2 = accept(s.socket, NULL, NULL);
-	
 	if (kto == 0){
 		send(TempSock, szMessage, 1, 0);
 		send(Socket2, szMessage2, 1, 0);
@@ -94,32 +94,45 @@ void handle(void * u){
 }
 
 void Serwer::connection(){
-	
-	listen(Socket, 100);
+
+	listen(Socket, SOMAXCONN);
+	cout << SOMAXCONN << endl;
 
 	while (true){
-		SOCKET TempSock = SOCKET_ERROR;
+		SOCKET Sock = SOCKET_ERROR;
+		SOCKET Sock2 = SOCKET_ERROR;
 		ZeroMemory(&serverInf, sizeof (struct sockaddr));
-		while (TempSock == SOCKET_ERROR)
-			TempSock = accept(Socket, NULL, NULL);
-		
-		if (TempSock != SOCKET_ERROR){
+
+		while (Sock == static_cast<unsigned int>(SOCKET_ERROR)){
+			cout << "czekam na klienta1\r";
+			Sock = accept(Socket, NULL, NULL);
+		}
+
+		cout << endl << "1 podlaczony" << endl;
+
+		while (Sock2 == static_cast<unsigned int>(SOCKET_ERROR)){
+			cout << "czekam na klienta2\r";
+			Sock2 = accept(Socket, NULL, NULL);
+		}
+
+		cout << "juz nie czekam" << endl;
+		if (Sock != static_cast<unsigned int>(SOCKET_ERROR)){
 			s.socket = Socket;
-			s.temp = TempSock;
+			s.temp = Sock;
+			s.temp2 = Sock2;
 			_beginthread(handle, 0, NULL);
 		}
 	}
-
 }
 
 /*
-send i recv operuj¹ jedynie na char [], wiêc nie przeœlemy struktury
+send i recv operujï¿½ jedynie na char [], wiï¿½c nie przeï¿½lemy struktury
 t - trafiony
 p - pudlo
 z - zatopiony
 n - niezatopiony
 l - przegrana - wysylana przez gracza, jesli juz nie ma zadnych statkow
-kto == 0 - strzela gracz 1 - losowane wy¿ej
+kto == 0 - strzela gracz 1 - losowane wyï¿½ej
 kto == 1 - strzela gracz 2 -     - || -
 
 */

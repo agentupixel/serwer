@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SERWER_H_INCLUDED
+#define SERWER_H_INCLUDED
+
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -22,6 +24,8 @@ private:
 	WSADATA WsaDat;
 	SOCKET Socket;
 	SOCKADDR_IN serverInf;
-	int port = 27015;
+	int port;
 };
 
+
+#endif // SERWER_H_INCLUDED

@@ -10,6 +10,6 @@ int main(){
 	catch (string w){
 		cout << w << endl;
 	}
-	
+
 	return 0;
 }

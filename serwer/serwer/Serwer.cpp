@@ -91,6 +91,7 @@ void handle(void * u){
 	}
 	closesocket(Socket2);
 	closesocket(TempSock);
+	//koment
 }
 
 void Serwer::connection(){
@@ -115,7 +116,7 @@ void Serwer::connection(){
 			Sock2 = accept(Socket, NULL, NULL);
 		}
 
-		cout << "juz nie czekam" << endl;
+		cout << endl << "juz nie czekam" << endl;
 		if (Sock != static_cast<unsigned int>(SOCKET_ERROR)){
 			s.socket = Socket;
 			s.temp = Sock;

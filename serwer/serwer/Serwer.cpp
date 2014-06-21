@@ -2,7 +2,7 @@
 
 using namespace std;
 
-struct sockety{
+struct sockets{
 	SOCKET socket;
 	SOCKET temp;
 	SOCKET temp2;
@@ -12,12 +12,12 @@ Serwer::Serwer() throw(string)
 {
 	port = 27015;
 	if (WSAStartup(MAKEWORD(2, 2), &WsaDat)){
-		string wyjatek = "WSA Initialization failure";
+		string wyjatek = "WSA initialization failure";
 		throw wyjatek;
 	}
 
 	if ((Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET){
-		string wyjatek = "Socket creation failure";
+		string wyjatek = "socket creation failure";
 		throw wyjatek;
 	}
 
@@ -25,12 +25,12 @@ Serwer::Serwer() throw(string)
 	serverInf.sin_addr.s_addr = INADDR_ANY;
 	serverInf.sin_port = htons(port);
 
+	DWORD dwRecvfromTimeout = 1000;
+
 	if (bind(Socket, (SOCKADDR*)(&serverInf), sizeof(serverInf)) == SOCKET_ERROR){
-		string wyjatek = "Socket bind failure";
+		string wyjatek = "socket bind failure";
 		throw wyjatek;
 	}
-
-
 }
 
 Serwer::~Serwer()
@@ -41,15 +41,15 @@ Serwer::~Serwer()
 }
 
 void handle(void * u){
-	cout << "tworze watek!" << endl;
+	cout << "creating thread..." << endl;
 	srand(static_cast<unsigned int>(time(0)));
-	int kto = rand() % 2;
+	int who = rand() % 2;
 	SOCKET Socket2 = s.temp2;
 	SOCKET TempSock = s.temp;
 	char szMessage[] = "t";
 	char szMessage2[] = "p";
 
-	if (kto == 0){
+	if (who == 0){
 		send(TempSock, szMessage, 1, 0);
 		send(Socket2, szMessage2, 1, 0);
 	}
@@ -58,8 +58,8 @@ void handle(void * u){
 		send(Socket2, szMessage, 1, 0);
 	}
 
-	while (szMessage[0] != 'l'){
-		if (kto == 0){
+	do{
+		if (who == 0){
 			recv(TempSock, szMessage, 1, 0);
 			recv(TempSock, szMessage2, 1, 0);
 			send(Socket2, szMessage, 1, 0);
@@ -69,12 +69,12 @@ void handle(void * u){
 			send(TempSock, szMessage, 1, 0);
 			send(TempSock, szMessage2, 1, 0);
 			if (szMessage[0] == 't')
-				kto = 0;
+				who = 0;
 			else
-				kto = 1;
+				who = 1;
 		}
 		else
-			if (kto == 1){
+			if (who == 1){
 				recv(Socket2, szMessage, 1, 0);
 				recv(Socket2, szMessage2, 1, 0);
 				send(TempSock, szMessage, 1, 0);
@@ -84,14 +84,14 @@ void handle(void * u){
 				send(Socket2, szMessage, 1, 0);
 				send(Socket2, szMessage2, 1, 0);
 				if (szMessage[0] == 't')
-					kto = 1;
+					who = 1;
 				else
-					kto = 0;
+					who = 0;
 			}
-	}
+	} while (szMessage[0] != 'l');
+
 	closesocket(Socket2);
 	closesocket(TempSock);
-	//koment
 }
 
 void Serwer::connection(){
@@ -104,19 +104,12 @@ void Serwer::connection(){
 		SOCKET Sock2 = SOCKET_ERROR;
 		ZeroMemory(&serverInf, sizeof (struct sockaddr));
 
-		while (Sock == static_cast<unsigned int>(SOCKET_ERROR)){
-			cout << "czekam na klienta1\r";
+		while (Sock == static_cast<unsigned int>(SOCKET_ERROR))
 			Sock = accept(Socket, NULL, NULL);
-		}
-
-		cout << endl << "1 podlaczony" << endl;
-
-		while (Sock2 == static_cast<unsigned int>(SOCKET_ERROR)){
-			cout << "czekam na klienta2\r";
+		
+		while (Sock2 == static_cast<unsigned int>(SOCKET_ERROR))
 			Sock2 = accept(Socket, NULL, NULL);
-		}
-
-		cout << endl << "juz nie czekam" << endl;
+		
 		if (Sock != static_cast<unsigned int>(SOCKET_ERROR)){
 			s.socket = Socket;
 			s.temp = Sock;
@@ -125,15 +118,3 @@ void Serwer::connection(){
 		}
 	}
 }
-
-/*
-send i recv operuj� jedynie na char [], wi�c nie prze�lemy struktury
-t - trafiony
-p - pudlo
-z - zatopiony
-n - niezatopiony
-l - przegrana - wysylana przez gracza, jesli juz nie ma zadnych statkow
-kto == 0 - strzela gracz 1 - losowane wy�ej
-kto == 1 - strzela gracz 2 -     - || -
-
-*/

@@ -12,13 +12,13 @@ Serwer::Serwer() throw(string)
 {
 	port = 27015;
 	if (WSAStartup(MAKEWORD(2, 2), &WsaDat)){
-		string wyjatek = "WSA initialization failure";
-		throw wyjatek;
+		string exception = "WSA initialization failure";
+		throw exception;
 	}
 
 	if ((Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET){
-		string wyjatek = "socket creation failure";
-		throw wyjatek;
+		string exception = "socket creation failure";
+		throw exception;
 	}
 
 	serverInf.sin_family = AF_INET;
@@ -28,8 +28,8 @@ Serwer::Serwer() throw(string)
 	DWORD dwRecvfromTimeout = 1000;
 
 	if (bind(Socket, (SOCKADDR*)(&serverInf), sizeof(serverInf)) == SOCKET_ERROR){
-		string wyjatek = "socket bind failure";
-		throw wyjatek;
+		string exception = "socket bind failure";
+		throw exception;
 	}
 }
 
